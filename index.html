@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>잭나이프 테니스 클럽</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:#2D5016;--lime:#8BC34A;--lime-bright:#AEEA00;
+  --bg:#0F1A07;--surface:#1A2910;--surface2:#223514;
+  --border:rgba(139,195,74,0.2);--border-s:rgba(139,195,74,0.4);
+  --text:#F0F7E6;--sub:#8BAE6B;--hint:#4A6A30;
+  --red:#FF5252;--red-bg:rgba(255,82,82,0.12);
+  --safe:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);max-width:390px;margin:0 auto;min-height:100vh;overflow-x:hidden}
+
+.header{padding:52px 20px 18px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.club-name{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--lime-bright);letter-spacing:1px;line-height:1;margin-bottom:2px}
+.club-sub{font-size:11px;color:var(--sub);font-weight:500;letter-spacing:2px;text-transform:uppercase}
+
+.content{padding:16px 14px 130px;display:flex;flex-direction:column;gap:12px}
+
+.card{background:var(--surface);border-radius:16px;border:1px solid var(--border);overflow:hidden}
+.card-header{display:flex;align-items:center;gap:8px;padding:13px 16px 11px;border-bottom:1px solid var(--border)}
+.card-icon{font-size:15px}
+.card-title{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.5px}
+.card-body{padding:14px 16px}
+
+/* ── 코트 항목 ── */
+.court-list{display:flex;flex-direction:column;gap:8px}
+.court-item{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  align-items:center;
+  gap:10px;
+  background:var(--surface2);
+  border-radius:10px;
+  border:1px solid var(--border);
+  padding:10px 12px;
+  transition:border-color .15s;
+}
+.court-item.has-qty{border-color:var(--lime-bright)}
+
+/* 가격 입력 */
+.price-input-wrap{display:flex;align-items:center;gap:4px}
+.price-input{
+  background:transparent;border:none;outline:none;
+  font-family:'Black Han Sans',sans-serif;
+  font-size:18px;color:var(--lime-bright);
+  width:72px;text-align:right;
+  -moz-appearance:textfield;
+}
+.price-input::-webkit-inner-spin-button,
+.price-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.price-unit{font-size:12px;color:var(--sub);font-weight:600;white-space:nowrap}
+
+/* 코트 수량 컨트롤 */
+.c-ctrl{display:flex;align-items:center;background:var(--bg);border-radius:20px;border:1px solid var(--border-s);overflow:hidden}
+.c-ctrl.active{background:rgba(174,234,0,0.1);border-color:var(--lime-bright)}
+.cbtn{width:30px;height:30px;border:none;background:transparent;font-size:17px;color:var(--sub);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.cbtn:active{background:rgba(255,255,255,0.05)}
+.c-ctrl.active .cbtn{color:var(--lime-bright)}
+.csep{width:0.5px;height:14px;background:var(--border);flex-shrink:0}
+.cnum{font-family:'Black Han Sans',sans-serif;font-size:16px;color:var(--text);width:22px;text-align:center}
+.c-ctrl.active .cnum{color:var(--lime-bright)}
+
+/* 삭제 버튼 */
+.del-btn{
+  width:26px;height:26px;border-radius:50%;
+  border:1px solid rgba(255,82,82,0.3);
+  background:var(--red-bg);
+  color:var(--red);font-size:14px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+
+/* 추가 버튼 */
+.add-court-btn{
+  width:100%;padding:11px;
+  background:transparent;
+  border:1.5px dashed var(--border-s);
+  border-radius:10px;
+  color:var(--sub);font-size:13px;font-weight:600;
+  font-family:inherit;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-top:4px;
+  transition:border-color .15s,color .15s;
+}
+.add-court-btn:active{border-color:var(--lime-bright);color:var(--lime-bright)}
+
+/* ── 인원 슬라이더 ── */
+.people-row{display:flex;align-items:center;gap:14px}
+.pnum{font-family:'Black Han Sans',sans-serif;font-size:44px;color:var(--lime-bright);line-height:1;min-width:54px;text-align:center}
+.punit{font-size:12px;color:var(--sub);font-weight:500;text-align:center;margin-top:2px}
+.pslider-wrap{flex:1;display:flex;flex-direction:column;gap:6px}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--surface2);border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--lime-bright);cursor:pointer;border:3px solid var(--bg)}
+.slider-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--hint)}
+
+/* ── 공 ── */
+.opt-group{display:flex;gap:8px;margin-bottom:14px}
+.opt-btn{
+  flex:1;padding:11px 8px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--surface2);
+  color:var(--sub);font-size:12px;font-weight:600;
+  font-family:inherit;cursor:pointer;text-align:center;line-height:1.4;
+  transition:all .15s;
+}
+.opt-btn .opt-price{display:block;font-size:15px;font-weight:700;color:var(--text);margin-top:2px}
+.opt-btn.selected{border-color:var(--lime-bright);background:rgba(174,234,0,0.1);color:var(--lime-bright)}
+.opt-btn.selected .opt-price{color:var(--lime-bright)}
+.ball-row{display:flex;align-items:center;justify-content:space-between}
+.ball-inner{display:flex;align-items:center;background:var(--surface2);border-radius:22px;border:1px solid var(--border-s);overflow:hidden}
+.bbtn{width:34px;height:34px;border:none;background:transparent;font-size:19px;color:var(--sub);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.bbtn:active{background:rgba(255,255,255,0.05)}
+.bsep{width:0.5px;height:16px;background:var(--border);flex-shrink:0}
+.bnum{font-family:'Black Han Sans',sans-serif;font-size:20px;color:var(--lime-bright);width:30px;text-align:center}
+.ball-price-note{font-size:12px;color:var(--hint)}
+
+/* ── 결과 ── */
+.result-card{
+  background:linear-gradient(135deg,#1E3510 0%,#2D5016 100%);
+  border-radius:20px;border:1.5px solid var(--lime);
+  padding:22px 20px;position:relative;overflow:hidden;
+}
+.result-card::before{content:'🎾';position:absolute;right:-10px;top:-10px;font-size:80px;opacity:.07}
+.result-label{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.result-amount{font-family:'Black Han Sans',sans-serif;font-size:52px;color:var(--lime-bright);line-height:1;letter-spacing:-1px}
+.result-unit{font-size:18px;color:var(--sub)}
+.result-desc{font-size:12px;color:var(--sub);margin-top:8px;line-height:1.7}
+.result-desc span{color:var(--lime);font-weight:600}
+
+/* ── 내역 ── */
+.breakdown{background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px}
+.breakdown-row:last-child{border-bottom:none}
+.b-label{color:var(--sub);font-weight:500}
+.b-val{color:var(--text);font-weight:700}
+.b-val.total{font-family:'Black Han Sans',sans-serif;font-size:17px;color:var(--lime-bright)}
+
+/* ── 바텀 바 ── */
+.bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:390px;background:var(--surface);border-top:1px solid var(--border-s);padding:12px 16px calc(12px + var(--safe));display:flex;gap:10px;z-index:200}
+.copy-btn{flex:1;padding:14px;background:var(--surface2);border:1.5px solid var(--border-s);border-radius:12px;color:var(--sub);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+.copy-btn:active{opacity:.8}
+.share-btn{flex:2;padding:14px;background:var(--lime-bright);border:none;border-radius:12px;color:var(--bg);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+.share-btn:active{opacity:.85}
+
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--lime-bright);color:var(--bg);font-size:13px;font-weight:700;padding:10px 20px;border-radius:20px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:999}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="club-name">JACKKNIFE TC</div>
+  <div class="club-sub">더치페이 계산기</div>
+</div>
+
+<div class="content">
+
+  <!-- 코트 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🏟</span>
+      <span class="card-title">코트비 — 가격 직접 입력 후 수량 조절</span>
+    </div>
+    <div class="card-body">
+      <div class="court-list" id="court-list"></div>
+      <button class="add-court-btn" onclick="addCourt()">＋ 코트 추가</button>
+    </div>
+  </div>
+
+  <!-- 인원 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">👥</span>
+      <span class="card-title">인원</span>
+    </div>
+    <div class="card-body">
+      <div class="people-row">
+        <div>
+          <div class="pnum" id="pnum">4</div>
+          <div class="punit">명</div>
+        </div>
+        <div class="pslider-wrap">
+          <input type="range" id="people-slider" min="2" max="8" value="4" step="1" oninput="onPeople(this.value)">
+          <div class="slider-labels">
+            <span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-icon">🎾</span>
+      <span class="card-title">공 (캔)</span>
+    </div>
+    <div class="card-body">
+      <div class="opt-group" id="ball-price-opts">
+        <button class="opt-btn selected" data-price="3000" onclick="selectBallPrice(this)">
+          일반<br><span class="opt-price">3,000원</span>
+        </button>
+        <button class="opt-btn" data-price="4000" onclick="selectBallPrice(this)">
+          프리미엄<br><span class="opt-price">4,000원</span>
+        </button>
+      </div>
+      <div class="ball-row">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="ball-inner">
+            <button class="bbtn" onclick="changeBall(-1)">−</button>
+            <div class="bsep"></div>
+            <span class="bnum" id="bnum">1</span>
+            <div class="bsep"></div>
+            <button class="bbtn" onclick="changeBall(1)">+</button>
+          </div>
+          <span style="font-size:12px;color:var(--sub);font-weight:500">캔</span>
+        </div>
+        <span class="ball-price-note" id="ball-note">= 3,000원</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="result-card">
+    <div class="result-label">1인당 더치페이</div>
+    <div>
+      <span class="result-amount" id="result-amt">—</span>
+      <span class="result-unit" id="result-unit"></span>
+    </div>
+    <div class="result-desc" id="result-desc"></div>
+  </div>
+
+  <!-- 내역 -->
+  <div class="breakdown" id="breakdown"></div>
+
+</div>
+
+<div class="bottom-bar">
+  <button class="copy-btn" onclick="copyResult()">📋 복사</button>
+  <button class="share-btn" onclick="shareResult()">공유하기 📤</button>
+</div>
+<div class="toast" id="toast">클립보드에 복사됐어요!</div>
+
+<script>
+// 코트 데이터: [{price, qty}]
+let courts = [
+  { price: 60000 },
+  { price: 20000 },
+];
+let people = 4;
+let ballPrice = 3000;
+let ballCount = 1;
+
+/* ── 코트 렌더 ── */
+function renderCourts() {
+  const el = document.getElementById('court-list');
+  el.innerHTML = courts.map((c, i) => {
+    const qty = c.qty || 0;
+    const active = qty > 0;
+    return `<div class="court-item${active?' has-qty':''}">
+      <div class="price-input-wrap">
+        <input class="price-input" type="number" value="${c.price}"
+          oninput="updateCourtPrice(${i}, this.value)"
+          onblur="formatCourtPrice(${i}, this)"
+          inputmode="numeric" placeholder="0">
+        <span class="price-unit">원 / 시간</span>
+      </div>
+      <div class="c-ctrl${active?' active':''}">
+        <button class="cbtn" onclick="changeCourtQty(${i},-1)">−</button>
+        <div class="csep"></div>
+        <span class="cnum">${qty}</span>
+        <div class="csep"></div>
+        <button class="cbtn" onclick="changeCourtQty(${i},1)">+</button>
+      </div>
+      ${courts.length > 1
+        ? `<button class="del-btn" onclick="removeCourt(${i})">✕</button>`
+        : `<div style="width:26px"></div>`}
+    </div>`;
+  }).join('');
+}
+
+function addCourt() {
+  courts.push({ price: 20000, qty: 0 });
+  renderCourts();
+  calc();
+}
+
+function removeCourt(i) {
+  courts.splice(i, 1);
+  renderCourts();
+  calc();
+}
+
+function updateCourtPrice(i, val) {
+  const v = parseInt(val) || 0;
+  courts[i].price = v;
+  calc();
+}
+
+function formatCourtPrice(i, input) {
+  // 빈칸이면 0 표시
+  if (!input.value) { input.value = 0; courts[i].price = 0; calc(); }
+}
+
+function changeCourtQty(i, d) {
+  courts[i].qty = Math.max(0, Math.min(10, (courts[i].qty || 0) + d));
+  renderCourts();
+  calc();
+}
+
+/* ── 인원 ── */
+function onPeople(v) {
+  people = parseInt(v);
+  document.getElementById('pnum').textContent = people;
+  calc();
+}
+
+/* ── 공 ── */
+function selectBallPrice(btn) {
+  document.querySelectorAll('#ball-price-opts .opt-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  ballPrice = parseInt(btn.dataset.price);
+  updateBallNote();
+  calc();
+}
+
+function changeBall(d) {
+  ballCount = Math.max(0, Math.min(20, ballCount + d));
+  document.getElementById('bnum').textContent = ballCount;
+  updateBallNote();
+  calc();
+}
+
+function updateBallNote() {
+  document.getElementById('ball-note').textContent = `= ${(ballPrice * ballCount).toLocaleString()}원`;
+}
+
+/* ── 계산 ── */
+function calc() {
+  const courtTotal = courts.reduce((a, c) => a + (c.price * (c.qty || 0)), 0);
+  const ballTotal = ballPrice * ballCount;
+  const grandTotal = courtTotal + ballTotal;
+  const perPerson = people > 0 ? Math.ceil(grandTotal / people) : 0;
+
+  // 결과
+  if (grandTotal === 0) {
+    document.getElementById('result-amt').textContent = '—';
+    document.getElementById('result-unit').textContent = '';
+    document.getElementById('result-desc').innerHTML = '항목을 선택해주세요';
+  } else {
+    document.getElementById('result-amt').textContent = perPerson.toLocaleString();
+    document.getElementById('result-unit').textContent = '원';
+
+    const courtLines = courts
+      .filter(c => (c.qty||0) > 0)
+      .map(c => `코트 ${c.price.toLocaleString()}원×${c.qty}`)
+      .join(' + ');
+    const parts = [];
+    if (courtTotal > 0) parts.push(`<span>코트 ${courtTotal.toLocaleString()}원</span>`);
+    if (ballTotal > 0) parts.push(`<span>공 ${ballTotal.toLocaleString()}원</span>`);
+    document.getElementById('result-desc').innerHTML =
+      `${parts.join(' + ')} = <span>${grandTotal.toLocaleString()}원</span> ÷ <span>${people}명</span>`;
+  }
+
+  // 내역
+  const bd = document.getElementById('breakdown');
+  let rows = '';
+
+  courts.forEach((c, i) => {
+    const qty = c.qty || 0;
+    const sub = c.price * qty;
+    rows += `<div class="breakdown-row">
+      <span class="b-label">🏟 코트${courts.length > 1 ? ` ${i+1}` : ''} (×${qty})</span>
+      <span class="b-val">${sub.toLocaleString()}원</span>
+    </div>`;
+  });
+
+  rows += `<div class="breakdown-row">
+    <span class="b-label">🎾 공 ${ballCount}캔</span>
+    <span class="b-val">${ballTotal.toLocaleString()}원</span>
+  </div>
+  <div class="breakdown-row">
+    <span class="b-label">📊 합계</span>
+    <span class="b-val">${grandTotal.toLocaleString()}원</span>
+  </div>
+  <div class="breakdown-row">
+    <span class="b-label">👥 인원</span>
+    <span class="b-val">${people}명</span>
+  </div>
+  <div class="breakdown-row" style="background:rgba(174,234,0,0.06)">
+    <span class="b-label" style="color:var(--lime-bright);font-weight:700">1인당</span>
+    <span class="b-val total">${perPerson.toLocaleString()}원</span>
+  </div>`;
+
+  bd.innerHTML = rows;
+}
+
+function getResultText() {
+  const courtTotal = courts.reduce((a, c) => a + (c.price * (c.qty || 0)), 0);
+  const ballTotal = ballPrice * ballCount;
+  const grandTotal = courtTotal + ballTotal;
+  const perPerson = Math.ceil(grandTotal / people);
+
+  const courtLines = courts
+    .filter(c => (c.qty||0) > 0)
+    .map((c, i) => `  🏟 코트${courts.length>1?` ${i+1}`:''} ${c.price.toLocaleString()}원 × ${c.qty}회 = ${(c.price*c.qty).toLocaleString()}원`)
+    .join('\n');
+
+  return `🎾 잭나이프 테니스 클럽\n` +
+    `━━━━━━━━━━━━━\n` +
+    `${courtLines}\n` +
+    `  🎾 공 ${ballCount}캔 = ${ballTotal.toLocaleString()}원\n` +
+    `━━━━━━━━━━━━━\n` +
+    `  합계: ${grandTotal.toLocaleString()}원\n` +
+    `  👥 ${people}명\n` +
+    `━━━━━━━━━━━━━\n` +
+    `💚 1인당: ${perPerson.toLocaleString()}원`;
+}
+
+function copyResult() {
+  navigator.clipboard.writeText(getResultText()).then(() => {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  });
+}
+
+function shareResult() {
+  if (navigator.share) {
+    navigator.share({ title: '잭나이프 TC 더치페이', text: getResultText() });
+  } else {
+    copyResult();
+  }
+}
+
+// 초기화
+courts = courts.map(c => ({ ...c, qty: 0 }));
+renderCourts();
+calc();
+</script>
+</body>
+</html>

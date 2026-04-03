@@ -186,9 +186,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
           <div class="punit">명</div>
         </div>
         <div class="pslider-wrap">
-          <input type="range" id="people-slider" min="2" max="8" value="4" step="1" oninput="onPeople(this.value)">
+          <input type="range" id="people-slider" min="2" max="12" value="4" step="1" oninput="onPeople(this.value)">
           <div class="slider-labels">
-            <span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span>
+            <span>2</span><span>4</span><span>6</span><span>8</span><span>10</span><span>12</span>
           </div>
         </div>
       </div>
@@ -405,12 +405,15 @@ function getResultText() {
   const grandTotal = courtTotal + ballTotal;
   const perPerson = Math.ceil(grandTotal / people);
 
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}년 ${String(now.getMonth()+1).padStart(2,'0')}월 ${String(now.getDate()).padStart(2,'0')}일`;
+
   const courtLines = courts
     .filter(c => (c.qty||0) > 0)
-    .map((c, i) => `  🏟 코트${courts.length>1?` ${i+1}`:''} ${c.price.toLocaleString()}원 × ${c.qty}회 = ${(c.price*c.qty).toLocaleString()}원`)
+    .map((c, i) => `  🏟 코트${courts.length>1?` ${i+1}`:''} ${c.price.toLocaleString()}원 × ${c.qty}시간 = ${(c.price*c.qty).toLocaleString()}원`)
     .join('\n');
 
-  return `🎾 잭나이프 테니스 클럽\n` +
+  return `🎾 ${dateStr}\n` +
     `━━━━━━━━━━━━━\n` +
     `${courtLines}\n` +
     `  🎾 공 ${ballCount}캔 = ${ballTotal.toLocaleString()}원\n` +
